@@ -9,13 +9,19 @@
 # There is therefore nothing to install. This hook makes the runtimes those scripts
 # rely on reliably discoverable for the session and prints a short diagnostic.
 #
-# Extend the "Install dependencies" section below if you later add a manifest.
+# It runs in async mode (see the control line below) so the session starts without
+# waiting on it. Extend the "Install dependencies" section below if you later add a
+# manifest; if that work must finish before the agent runs, consider going synchronous.
 set -euo pipefail
 
 # Only run in the remote (Claude Code on the web) environment.
 if [ "${CLAUDE_CODE_REMOTE:-}" != "true" ]; then
   exit 0
 fi
+
+# Run asynchronously so the session starts without waiting on this hook.
+# (Safe here because there are no dependencies the agent must wait for.)
+echo '{"async": true, "asyncTimeout": 300000}'
 
 # --- Ensure the repo's runtimes are on PATH for the whole session ---------------
 # bun is installed under ~/.bun/bin, which is not always on PATH in fresh shells.
